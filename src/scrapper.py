@@ -69,26 +69,32 @@ def scrape_NBA_team_data(years = [2017, 2018]):
         try:
             row_titles = titles[0:titles.index("Eastern Conference")]
         except: row_titles = titles
+
         # remove the non-teams from this list
         for i in headers:
             row_titles.remove(i)
-        row_titles.remove("Western Conference")
+
         divisions = ["Atlantic Division", "Central Division",
                      "Southeast Division", "Northwest Division",
                      "Pacific Division", "Southwest Division",
                      "Midwest Division"]
-        for d in divisions:
-            try:
-                row_titles.remove(d)
-            except:
-                print("no division:", d)
+        
+        [row_titles.remove(x) for x in row_titles if x in divisions ]
+
+        # Separate east and west 
+        east_titles = row_titles[:row_titles.index('Western Conference')]
+        west_titles = row_titles[row_titles.index('Western Conference')+1:]
+
+        row_titles.remove("Western Conference")
         
         # next, grab all data from rows (avoid first row)
         rows = soup.findAll('tr')[1:]
         team_stats = [[td.getText() for td in rows[i].findAll('td')]
                     for i in range(len(rows))]
+        
         # remove empty elements
         team_stats = [e for e in team_stats if e != []]
+
         # only keep needed rows
         team_stats = team_stats[0:len(row_titles)]
         
@@ -112,7 +118,10 @@ def scrape_NBA_team_data(years = [2017, 2018]):
         year_standings["Losing_season"] = ["Y" if float(ele) < .5 else "N" for ele in year_standings["W/L%"]]
         
         # append new dataframe to final_df
-        final_df = final_df.append(year_standings)
+        final_df = pd.concat([final_df, year_standings], ignore_index=True)
+
+        east_df = final_df[final_df.Team.isin(east_titles)].sort_values(by='W',ascending=False)
+        west_df = final_df[final_df.Team.isin(west_titles)].sort_values(by='W',ascending=False)
         
     # export to csv
-    return final_df
+    return east_df, west_df
