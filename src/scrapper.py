@@ -83,7 +83,9 @@ def scrape_NBA_team_data(years = [2017, 2018]):
 
         # Separate east and west 
         east_titles = row_titles[:row_titles.index('Western Conference')]
+        east_titles = [e.replace('*','') for e in east_titles] 
         west_titles = row_titles[row_titles.index('Western Conference')+1:]
+        west_titles = [w.replace('*','') for w in west_titles]
 
         row_titles.remove("Western Conference")
         
@@ -119,6 +121,7 @@ def scrape_NBA_team_data(years = [2017, 2018]):
         
         # append new dataframe to final_df
         final_df = pd.concat([final_df, year_standings], ignore_index=True)
+        final_df = final_df.drop(columns=['Year'])
 
         east_df = final_df[final_df.Team.isin(east_titles)].sort_values(by='W',ascending=False)
         west_df = final_df[final_df.Team.isin(west_titles)].sort_values(by='W',ascending=False)
