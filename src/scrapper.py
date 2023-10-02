@@ -1,6 +1,14 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import pandas as pd
+import requests
+from PIL import Image
+from io import BytesIO
+import unidecode
+import os
+import sys
+import unicodedata
+
 
 def scrape_nba_finals(sample= 10):
     # URL to scrape
@@ -128,3 +136,35 @@ def scrape_NBA_team_data(years = [2017, 2018]):
         
     # export to csv
     return east_df, west_df
+
+
+def get_player_image_url(player):
+    """ Return first result of google images for indicated player """
+
+    url = f'https://www.google.com/search?q={player}&tbm=isch'
+    content = requests.get(url).content
+    soup = BeautifulSoup(content,'lxml')
+    images = soup.findAll('img')
+    final_url = images[1].get('src')
+    return final_url
+
+# Get player stats
+
+def get_player_stats(player,season):
+
+    """ Get player stats indicating name and season (year)"""
+
+    url = f'https://www.basketball-reference.com/leagues/NBA_{season}_per_game.html'
+
+    table_html = BeautifulSoup(urlopen(url),'html.parser').findAll('table')
+
+    df = pd.read_html(str(table_html))[0]
+    
+    df = df[df.Player.apply(lambda x: x.lower()) == player.lower()]
+
+    final_cols = ['Age', 'Tm','G','PTS','AST', 'TRB', 'STL','BLK','TOV',
+                    'MP','FG%','3P%', '2P%', 'eFG%','FT%','PF','Player']
+    
+    df_player = df[final_cols].set_index('Player').T.reset_index()
+
+    return df_player

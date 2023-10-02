@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # Intro
-st.title('NBA Finals leaders in the last 10 years')
+st.title('NBA Playoffs leaders in the last 10 years')
 
 # Get Finals MVP data
 df = scrape_nba_finals()
