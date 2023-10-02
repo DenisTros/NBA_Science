@@ -7,6 +7,7 @@ from PIL import Image
 from io import BytesIO
 from st_aggrid import AgGrid, GridOptionsBuilder
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 import sys
 sys.path.insert(0, './')
@@ -40,8 +41,7 @@ with c2:
     AgGrid(
                 player_1_stats,
                 gridOptions=GridOptionsBuilder.from_dataframe(player_1_stats).build(),
-                fit_columns_on_grid_load=True,
-                key='1'
+                fit_columns_on_grid_load=True
             )
 
 with c3:
@@ -63,15 +63,27 @@ with c4:
 
 # Charts 
 
-players_df = player_1_stats.merge(player_2_stats,on='index').T
-players_df = players_df[['PTS','AST','TRB','STL','BLK','TOV','MP','PF']]
+players_df = player_1_stats.merge(player_2_stats,on='index').set_index('index').T.reset_index()
+players_df = players_df[['Player','PTS','AST','TRB','STL','BLK','TOV','MP','PF']]
+players_df = players_df.melt(id_vars='Player', var_name='Stats', value_name='Averages')
+players_df.Averages = players_df.Averages.apply(pd.to_numeric, errors='coerce')
 
-players_df = players_df.apply(pd.to_numeric, errors='coerce')
+fig = px.bar(players_df, x='Stats', y='Averages', color='Player',barmode='group',
+             labels={'Stats': 'Stats', 'Averages': 'Averages'},
+             title='NBA Season Stats by Player',
+             text='Averages',
+             category_orders={'Stats': players_df['Stats'].tolist()})
 
-players_df.plot(kind='bar', figsize=(10, 6))
-plt.title('NBA Player Stats')
-plt.xlabel('Players')
-plt.ylabel('Stats')
-plt.legend(title='Stats')
-plt.show()
+# Customize layout and appearance
+fig.update_traces(texttemplate='%{text:.1f}', textposition='outside')
+fig.update_layout(xaxis_title='Stats', yaxis_title='Averages')
+fig.update_xaxes(tickangle=0)  # Rotate x-axis labels if needed
+fig.update_layout(legend=dict(
+    yanchor="top",
+    y=1.3,
+    xanchor="left",
+    x=0.4
+))
+
+st.plotly_chart(fig,use_container_width=True)
 
