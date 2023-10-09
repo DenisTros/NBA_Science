@@ -11,7 +11,7 @@ st.markdown(
 """
 ## Summary
 
-This is a dashboard that can help teams and players find interesting stats about past and current NBA seasons.
+This is a dashboard that can help you find interesting stats about past and current NBA seasons.
 
 """
 )
@@ -20,9 +20,8 @@ st.markdown(
 """
 ## Index
 
-- Teams
-- Players
-- NBA Finals
-
+- **Teams**: see the Eastern and Western Conference results for the selected season.
+- **Players**: see the stats of your two favourite players for the selected season.
+- **NBA Finals**: see the playoffs leaders for the selected season.
 """
 )
