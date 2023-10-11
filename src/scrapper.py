@@ -168,3 +168,26 @@ def get_player_stats(player,season):
     df_player = df[final_cols].set_index('Player').T.reset_index()
 
     return df_player
+
+# Data for radial plot
+
+def generate_data_for_comparison(player_1_stats, player_2_stats):
+
+    df_1 = player_1_stats
+    df_2 = player_2_stats
+
+    df_1.columns = ['index',df_1.index[0]]
+    df_2.columns = ['index',df_2.index[0]]
+
+    df_1 = df_1.set_index('index').T
+    df_2 = df_2.set_index('index').T
+
+    stats = ['PTS','AST','TRB','STL','BLK', 'TOV']
+
+    df_1 = df_1[stats]
+    df_2 = df_2[stats]
+
+    df_1 = df_1.apply(pd.to_numeric, errors='coerce')
+    df_2 = df_2.apply(pd.to_numeric, errors='coerce')
+
+    return df_1, df_2
